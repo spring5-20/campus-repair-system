@@ -1,0 +1,18 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: repair-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: repair_system
+      MYSQL_USER: repair
+      MYSQL_PASSWORD: repair
+    ports:
+      # 与项目默认 DATABASE_URL 保持一致：宿主机 3307 映射容器 3306
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data:

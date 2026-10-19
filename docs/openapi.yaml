@@ -1,0 +1,523 @@
+openapi: 3.0.3
+info:
+  title: Campus Repair System API
+  version: 1.0.0
+  description: |
+    校园报修系统后端接口契约（PRD V1.0 §7 冻结草案）。
+    契约是接口唯一事实源：任何路径、字段、状态码变化，先改本文件，再改代码（ADR-0001）。
+servers:
+  - url: http://localhost:3000
+    description: 本地开发
+security:
+  - bearerAuth: []
+tags:
+  - name: health
+  - name: auth
+  - name: users
+  - name: tickets
+paths:
+  /api/health:
+    get:
+      tags: [health]
+      summary: 服务健康检查
+      security: []
+      responses:
+        "200":
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: 账号登录，返回 JWT 与用户信息
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TokenResponse"
+        "401":
+          $ref: "#/components/responses/Error"
+  /api/auth/me:
+    get:
+      tags: [auth]
+      summary: 恢复当前登录用户
+      responses:
+        "200":
+          description: 当前用户
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Error"
+  /api/users:
+    get:
+      tags: [users]
+      summary: 用户列表（管理端指派下拉等场景），可按角色筛选
+      parameters:
+        - name: role
+          in: query
+          description: 按角色筛选：student / tech / admin；缺省返回全部用户
+          schema:
+            type: string
+            enum: [student, tech, admin]
+      responses:
+        "200":
+          description: 用户列表（不含密码等敏感字段）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /api/tickets:
+    get:
+      tags: [tickets]
+      summary: 按角色数据范围筛选与分页查询（LIST-001）
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, enum: [10, 20, 50], default: 10 }
+        - name: scope
+          in: query
+          description: 维修/管理员范围筛选：pool=工单池（PENDING 未指派），mine=指派给本人；缺省为角色默认数据范围
+          schema:
+            type: string
+            enum: [pool, mine]
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/TicketStatus" }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: keyword
+          in: query
+          description: 搜索工单编号、标题、位置
+          schema: { type: string }
+      responses:
+        "200":
+          description: 分页结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TicketPage"
+        "401":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+    post:
+      tags: [tickets]
+      summary: 学生创建工单（TKT-001）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketCreate"
+      responses:
+        "200":
+          description: 创建成功，工单为 PENDING
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Ticket"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /api/tickets/statistics:
+    get:
+      tags: [tickets]
+      summary: 角色范围统计（DASH-001）
+      responses:
+        "200":
+          description: 统计结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Statistics"
+        "401":
+          $ref: "#/components/responses/Error"
+  /api/tickets/{ticketId}:
+    get:
+      tags: [tickets]
+      summary: 工单详情（TKT-002）
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: 工单详情（含留言与操作时间线）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TicketDetail"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+  /api/tickets/{ticketId}/status:
+    patch:
+      tags: [tickets]
+      summary: 状态迁移（FLOW-001..004）
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusChangeRequest"
+      responses:
+        "200":
+          description: 迁移成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Ticket"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /api/tickets/{ticketId}/assignee:
+    patch:
+      tags: [tickets]
+      summary: 管理员指派（FLOW-002）
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssigneeRequest"
+      responses:
+        "200":
+          description: 指派成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Ticket"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /api/tickets/{ticketId}/comments:
+    post:
+      tags: [tickets]
+      summary: 新增处理留言（TKT-003）
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentCreate"
+      responses:
+        "200":
+          description: 留言成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TicketComment"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /api/tickets/{ticketId}/logs:
+    get:
+      tags: [tickets]
+      summary: 操作日志时间线（AUD-001），按时间正序
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: 日志列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/TicketLog"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: 业务错误（信封统一：code 镜像 HTTP 状态，message 中文）
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code: { type: integer, description: 成功为 0，错误镜像 HTTP 状态码 }
+        message: { type: string }
+        data: { description: 业务数据，错误时为 null }
+    ErrorResponse:
+      type: object
+      properties:
+        code: { type: integer }
+        message: { type: string }
+        data: { nullable: true }
+    User:
+      type: object
+      required: [id, username, displayName, role]
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        displayName: { type: string }
+        role: { type: string, enum: [student, tech, admin] }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+    TokenResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string, description: JWT，24 小时过期 }
+        user: { $ref: "#/components/schemas/User" }
+    TicketStatus:
+      type: string
+      enum: [PENDING, PROCESSING, RESOLVED, CLOSED, CANCELLED]
+    TicketPriority:
+      type: string
+      enum: [LOW, MEDIUM, HIGH]
+    TicketAction:
+      type: string
+      enum: [ACCEPT, ASSIGN, RESOLVE, CLOSE, CANCEL]
+    TicketCreate:
+      type: object
+      required: [title, description, category, location]
+      properties:
+        title: { type: string, minLength: 3, maxLength: 80 }
+        description: { type: string, minLength: 5, maxLength: 1000 }
+        category:
+          type: string
+          description: 教学设备 / 电脑设备 / 网络故障 / 水电设施
+        location: { type: string, minLength: 2, maxLength: 100 }
+        priority: { $ref: "#/components/schemas/TicketPriority", default: MEDIUM }
+    Ticket:
+      type: object
+      required:
+        [id, ticketNo, title, description, category, location, priority, status, reporterId, reporterName, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        ticketNo: { type: string, example: REP-0001 }
+        title: { type: string }
+        description: { type: string }
+        category: { type: string }
+        location: { type: string }
+        priority: { $ref: "#/components/schemas/TicketPriority" }
+        status: { $ref: "#/components/schemas/TicketStatus" }
+        reporterId: { type: integer }
+        reporterName: { type: string }
+        assigneeId: { type: integer, nullable: true }
+        assigneeName: { type: string, nullable: true }
+        assignedBy: { type: integer, nullable: true }
+        assignedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TicketDetail:
+      allOf:
+        - $ref: "#/components/schemas/Ticket"
+        - type: object
+          properties:
+            comments:
+              type: array
+              items: { $ref: "#/components/schemas/TicketComment" }
+            logs:
+              type: array
+              items: { $ref: "#/components/schemas/TicketLog" }
+    TicketPage:
+      type: object
+      required: [items, total, page, pageSize, pages]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Ticket" }
+        total: { type: integer }
+        page: { type: integer }
+        pageSize: { type: integer }
+        pages: { type: integer }
+    StatusChangeRequest:
+      type: object
+      required: [action]
+      properties:
+        action: { $ref: "#/components/schemas/TicketAction" }
+    AssigneeRequest:
+      type: object
+      required: [assigneeId]
+      properties:
+        assigneeId: { type: integer }
+    CommentCreate:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, minLength: 1, maxLength: 500, description: 去首尾空格后 1–500 字 }
+    TicketComment:
+      type: object
+      required: [id, ticketId, authorId, authorName, content, createdAt]
+      properties:
+        id: { type: integer }
+        ticketId: { type: integer }
+        authorId: { type: integer }
+        authorName: { type: string }
+        content: { type: string }
+        createdAt: { type: string, format: date-time }
+    TicketLog:
+      type: object
+      required: [id, ticketId, actorId, actorName, action, createdAt]
+      properties:
+        id: { type: integer }
+        ticketId: { type: integer }
+        actorId: { type: integer }
+        actorName: { type: string }
+        action:
+          type: string
+          enum: [CREATE, ACCEPT, ASSIGN, RESOLVE, CLOSE, CANCEL, COMMENT]
+        fromStatus: { $ref: "#/components/schemas/TicketStatus", nullable: true }
+        toStatus: { $ref: "#/components/schemas/TicketStatus", nullable: true }
+        detail: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+    Statistics:
+      type: object
+      required:
+        [total, pending, processing, resolved, closed, cancelled, highOpen, closureRate]
+      properties:
+        total: { type: integer, description: 可见工单总数 }
+        pending: { type: integer }
+        processing: { type: integer }
+        resolved: { type: integer }
+        closed: { type: integer }
+        cancelled: { type: integer }
+        highOpen:
+          type: integer
+          description: 优先级 HIGH 且状态非 CLOSED/CANCELLED
+        closureRate:
+          type: number
+          description: closed / 全部可见工单（含 cancelled），取整百分比

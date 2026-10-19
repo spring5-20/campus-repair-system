@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>校园报修系统 · 学生项目完整可点击原型</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17262f;
+      --muted: #71808a;
+      --line: #dfe7e9;
+      --page: #f3f6f4;
+      --surface: #ffffff;
+      --brand: #15594f;
+      --brand-2: #267a6b;
+      --brand-soft: #e7f1ed;
+      --gold: #d2a54a;
+      --warning: #a56416;
+      --warning-soft: #fff3d8;
+      --danger: #b34545;
+      --danger-soft: #fbe9e9;
+      --info: #315d9b;
+      --info-soft: #eaf1fb;
+      --success: #24704e;
+      --success-soft: #e7f5ec;
+      --shadow: 0 10px 28px rgba(22, 61, 53, .08);
+      --radius: 15px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--page); }
+    body { margin: 0; color: var(--ink); background: var(--page); font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    :focus-visible { outline: 3px solid rgba(38, 122, 107, .25); outline-offset: 2px; }
+
+    .cr-login { min-height: 100vh; display: grid; grid-template-columns: minmax(360px, .95fr) minmax(440px, 1.05fr); }
+    .cr-login-visual { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding: 70px clamp(34px, 8vw, 110px); color: #fff; background: linear-gradient(140deg, #103c36, #1d5e52); }
+    .cr-login-visual::before, .cr-login-visual::after { content: ""; position: absolute; border: 1px solid rgba(225, 188, 103, .22); border-radius: 50%; }
+    .cr-login-visual::before { width: 430px; height: 430px; right: -190px; top: -145px; }
+    .cr-login-visual::after { width: 260px; height: 260px; left: -115px; bottom: -100px; }
+    .cr-login-mark { display: grid; width: 58px; height: 58px; place-items: center; color: #173f37; background: #e1bd65; border-radius: 17px; font-size: 28px; font-weight: 700; }
+    .cr-login-visual h1 { max-width: 520px; margin: 30px 0 14px; font-family: "Songti SC", serif; font-size: clamp(34px, 4.5vw, 52px); line-height: 1.25; }
+    .cr-login-visual > p { max-width: 520px; margin: 0; color: #bed1cb; font-size: 15px; line-height: 1.8; }
+    .cr-flow-preview { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .cr-flow-preview span { padding: 8px 11px; color: #f0d88f; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.09); border-radius: 8px; font-size: 12px; }
+    .cr-login-form-wrap { display: grid; place-items: center; padding: 34px; }
+    .cr-login-card { width: min(440px, 100%); padding: 34px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 24px 65px rgba(24, 59, 51, .13); }
+    .cr-kicker { margin: 0 0 7px; color: #a57c28; font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+    .cr-login-card h2 { margin: 0 0 7px; color: #163b34; font-size: 26px; }
+    .cr-login-card > p { margin: 0 0 25px; color: var(--muted); font-size: 13px; }
+    .cr-field { display: grid; gap: 7px; margin-bottom: 16px; }
+    .cr-field label, .cr-field legend { color: #40515a; font-size: 13px; font-weight: 600; }
+    .cr-field input, .cr-field select, .cr-field textarea { width: 100%; padding: 10px 12px; color: var(--ink); background: var(--surface); border: 1px solid #cfdadd; border-radius: 9px; outline: 0; transition: border-color .16s, box-shadow .16s; }
+    .cr-field input:focus, .cr-field select:focus, .cr-field textarea:focus { border-color: var(--brand-2); box-shadow: 0 0 0 3px rgba(38, 122, 107, .12); }
+    .cr-field textarea { min-height: 112px; resize: vertical; line-height: 1.65; }
+    .cr-help { color: #8a969d; font-size: 11px; line-height: 1.5; }
+    .cr-error { margin-bottom: 14px; padding: 10px 12px; color: var(--danger); background: var(--danger-soft); border-radius: 9px; font-size: 12px; }
+    .cr-btn { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 7px; padding: 8px 14px; color: #3a4a53; background: #fff; border: 1px solid #cfdbde; border-radius: 9px; text-decoration: none; transition: .16s ease; }
+    .cr-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: #9fb8b2; }
+    .cr-btn-primary { color: #fff; background: var(--brand); border-color: var(--brand); }
+    .cr-btn-primary:hover:not(:disabled) { background: #104b42; border-color: #104b42; }
+    .cr-btn-danger { color: var(--danger); background: #fff; border-color: #e2b7b7; }
+    .cr-btn-ghost { background: transparent; border-color: transparent; }
+    .cr-btn-block { width: 100%; min-height: 45px; }
+    .cr-demo-accounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; padding-top: 18px; border-top: 1px solid #ebeff0; }
+    .cr-demo-accounts button { padding: 8px 6px; color: #3b6158; background: #eff5f2; border: 0; border-radius: 8px; font-size: 12px; }
+
+    .cr-app { min-height: 100vh; }
+    .cr-topbar { position: sticky; z-index: 20; top: 0; height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 22px; color: #fff; background: #173f38; box-shadow: 0 5px 18px rgba(17, 48, 42, .18); }
+    .cr-brand { display: flex; align-items: center; gap: 10px; min-width: 190px; }
+    .cr-brand-mark { display: grid; width: 37px; height: 37px; place-items: center; color: #183f37; background: #dfb95e; border-radius: 11px; font-size: 19px; font-weight: 700; }
+    .cr-brand strong, .cr-brand small { display: block; }
+    .cr-brand strong { font-size: 15px; letter-spacing: .05em; }
+    .cr-brand small { margin-top: 2px; color: #91afa7; font-size: 9px; letter-spacing: .12em; }
+    .cr-role-switch { display: flex; gap: 4px; padding: 4px; background: rgba(255,255,255,.08); border-radius: 10px; }
+    .cr-role-switch button { padding: 7px 13px; color: #afc4be; background: transparent; border: 0; border-radius: 7px; font-size: 12px; }
+    .cr-role-switch button[aria-pressed="true"] { color: #173f38; background: #f1d27e; }
+    .cr-top-actions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; min-width: 190px; }
+    .cr-user-badge { display: flex; align-items: center; gap: 8px; }
+    .cr-avatar { display: grid; width: 34px; height: 34px; place-items: center; color: #173f38; background: #c9ddd7; border-radius: 50%; font-size: 13px; font-weight: 700; }
+    .cr-user-badge strong, .cr-user-badge small { display: block; }
+    .cr-user-badge strong { font-size: 11px; }
+    .cr-user-badge small { margin-top: 2px; color: #9eb8b1; font-size: 9px; }
+    .cr-topbar .cr-btn { min-height: 32px; padding: 5px 8px; color: #d4e2de; font-size: 11px; }
+
+    .cr-shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+    .cr-sidebar { position: sticky; top: 68px; height: calc(100vh - 68px); padding: 20px 14px; background: #fff; border-right: 1px solid var(--line); }
+    .cr-sidebar nav { display: grid; gap: 6px; }
+    .cr-nav-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; color: #62727a; background: transparent; border: 0; border-radius: 9px; text-align: left; }
+    .cr-nav-btn:hover { color: var(--brand); background: #f0f5f3; }
+    .cr-nav-btn[aria-current="page"] { color: #fff; background: var(--brand); }
+    .cr-nav-icon { width: 21px; text-align: center; }
+    .cr-sidebar-note { position: absolute; right: 14px; bottom: 20px; left: 14px; padding: 13px; color: #62736e; background: var(--brand-soft); border-radius: 10px; font-size: 11px; line-height: 1.65; }
+    .cr-sidebar-note strong { display: block; margin-bottom: 4px; color: #28584e; }
+    .cr-content { min-width: 0; padding: 25px clamp(16px, 3vw, 34px) 42px; }
+    .cr-page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .cr-page-head h1 { margin: 0 0 6px; font-family: "Songti SC", serif; font-size: 27px; }
+    .cr-page-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .cr-page-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .cr-phase-label { display: inline-flex; margin-bottom: 7px; padding: 4px 8px; color: #8a661e; background: #fff2cf; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+
+    .cr-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 17px; }
+    .cr-metric { padding: 17px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 5px 16px rgba(24,55,48,.04); }
+    .cr-metric span { color: var(--muted); font-size: 12px; }
+    .cr-metric strong { display: block; margin: 9px 0 4px; color: #16493f; font-size: 27px; }
+    .cr-metric small { color: #929da3; font-size: 10px; }
+    .cr-grid-two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(290px, .7fr); gap: 16px; }
+    .cr-panel { min-width: 0; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 5px 16px rgba(24,55,48,.04); }
+    .cr-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .cr-panel h2, .cr-panel-head h2 { margin: 0; font-size: 16px; }
+    .cr-panel-head > span { color: var(--muted); font-size: 11px; }
+    .cr-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-bottom: 17px; padding: 14px 18px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+    .cr-flow-step { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 8px; color: #8a969c; }
+    .cr-flow-step:not(:last-child)::after { content: ""; position: absolute; top: 13px; left: 33px; right: 6px; height: 2px; background: #dfe7e8; }
+    .cr-flow-dot { z-index: 1; grid-row: 1 / 3; display: grid; width: 27px; height: 27px; place-items: center; background: #e8edef; border-radius: 50%; font-size: 11px; font-weight: 700; }
+    .cr-flow-step strong { z-index: 1; align-self: end; color: #66747b; font-size: 11px; }
+    .cr-flow-step small { color: #9aa4a9; font-size: 9px; }
+    .cr-flow-step.is-done .cr-flow-dot, .cr-flow-step.is-current .cr-flow-dot { color: #fff; background: var(--brand-2); }
+    .cr-flow-step.is-done:not(:last-child)::after { background: #74a99c; }
+    .cr-flow-step.is-current strong, .cr-flow-step.is-done strong { color: #24564c; }
+
+    .cr-toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 14px; }
+    .cr-toolbar input, .cr-toolbar select { min-height: 37px; padding: 7px 10px; color: var(--ink); background: #fff; border: 1px solid #cfdadd; border-radius: 8px; }
+    .cr-toolbar input { width: min(280px, 100%); }
+    .cr-toolbar select { width: 150px; }
+    .cr-table-wrap { overflow-x: auto; }
+    .cr-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .cr-table th { padding: 10px 11px; color: #7d898f; background: #f5f7f7; text-align: left; white-space: nowrap; font-weight: 600; }
+    .cr-table td { padding: 12px 11px; border-bottom: 1px solid #edf1f2; vertical-align: middle; }
+    .cr-table tbody tr { cursor: pointer; }
+    .cr-table tbody tr:hover { background: #f7faf9; }
+    .cr-ticket-title { display: block; max-width: 430px; color: #21483f; font-size: 13px; }
+    .cr-secondary-text { display: block; margin-top: 4px; color: #8b969c; font-size: 10px; }
+    .cr-status { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-size: 10px; white-space: nowrap; }
+    .cr-status.pending { color: var(--warning); background: var(--warning-soft); }
+    .cr-status.processing { color: var(--info); background: var(--info-soft); }
+    .cr-status.resolved { color: var(--success); background: var(--success-soft); }
+    .cr-status.closed, .cr-status.cancelled { color: #66727a; background: #edf0f2; }
+    .cr-priority { font-weight: 700; }
+    .cr-priority.high { color: var(--danger); }
+    .cr-priority.medium { color: var(--warning); }
+    .cr-priority.low { color: var(--success); }
+    .cr-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 14px; color: var(--muted); font-size: 11px; }
+    .cr-pagination button { display: grid; width: 32px; height: 32px; place-items: center; color: #516168; background: #fff; border: 1px solid #d7e0e2; border-radius: 8px; }
+    .cr-empty { padding: 46px 20px; color: var(--muted); text-align: center; }
+
+    .cr-quick-list { display: grid; gap: 9px; }
+    .cr-quick-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 12px; color: #3d4f56; background: #f5f8f7; border: 0; border-radius: 10px; text-align: left; }
+    .cr-quick-icon { display: grid; flex: 0 0 35px; width: 35px; height: 35px; place-items: center; color: #225a4f; background: #dcebe6; border-radius: 9px; }
+    .cr-quick-item strong, .cr-quick-item small { display: block; }
+    .cr-quick-item strong { font-size: 12px; }
+    .cr-quick-item small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .cr-mini-bars { height: 190px; display: flex; align-items: flex-end; gap: 14px; padding: 12px 8px 0; border-bottom: 1px solid #dfe6e8; }
+    .cr-mini-bar-group { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; }
+    .cr-mini-bar { width: min(34px, 62%); min-height: 4px; background: linear-gradient(#3b806f, #1f5e51); border-radius: 5px 5px 0 0; }
+    .cr-mini-bar-group span { color: #8b969b; font-size: 9px; }
+    .cr-mini-bar-group strong { color: #41635a; font-size: 10px; }
+
+    .cr-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 15px; }
+    .cr-full { grid-column: 1 / -1; }
+    .cr-radio-row { display: flex; flex-wrap: wrap; gap: 9px; }
+    .cr-radio { display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: #f4f7f6; border-radius: 8px; font-size: 12px; }
+    .cr-upload { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 13px; background: #f5f8f7; border: 1px dashed #b9cbc6; border-radius: 10px; }
+    .cr-upload input { min-width: 0; padding: 0; border: 0; background: transparent; }
+    .cr-photo-preview { display: flex; align-items: center; gap: 11px; }
+    .cr-photo-preview img { width: 68px; height: 54px; object-fit: cover; border-radius: 8px; }
+    .cr-form-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 5px; }
+
+    .cr-detail-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); gap: 16px; }
+    .cr-detail-section + .cr-detail-section { margin-top: 19px; padding-top: 17px; border-top: 1px solid #edf1f2; }
+    .cr-detail-section h2 { margin-bottom: 11px; }
+    .cr-kv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .cr-kv span, .cr-kv strong { display: block; }
+    .cr-kv span { color: #8a959b; font-size: 10px; }
+    .cr-kv strong { margin-top: 4px; color: #41515a; font-size: 12px; }
+    .cr-description { margin: 0; color: #526169; font-size: 13px; line-height: 1.8; white-space: pre-wrap; }
+    .cr-attachment { display: flex; align-items: center; gap: 9px; margin-top: 11px; padding: 10px; background: #f3f7f5; border-radius: 9px; font-size: 11px; }
+    .cr-attachment img { width: 62px; height: 48px; object-fit: cover; border-radius: 7px; }
+    .cr-comment { position: relative; padding: 10px 12px; background: #f6f8f8; border-radius: 9px; }
+    .cr-comment + .cr-comment { margin-top: 8px; }
+    .cr-comment strong { font-size: 11px; }
+    .cr-comment time { margin-left: 8px; color: #97a0a5; font-size: 9px; }
+    .cr-comment p { margin: 6px 0 0; color: #58666d; font-size: 11px; line-height: 1.6; }
+    .cr-comment-form { display: flex; gap: 8px; margin-top: 10px; }
+    .cr-comment-form input { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid #d1dcde; border-radius: 8px; }
+    .cr-assignee { display: flex; align-items: center; gap: 10px; margin: 13px 0; padding: 11px; background: #f3f7f5; border-radius: 9px; }
+    .cr-assignee strong, .cr-assignee span { display: block; }
+    .cr-assignee strong { font-size: 12px; }
+    .cr-assignee span { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .cr-stack-actions { display: grid; gap: 8px; }
+    .cr-stack-actions .cr-btn { width: 100%; }
+    .cr-assign-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+    .cr-assign-row select { min-width: 0; padding: 8px; border: 1px solid #ced9dc; border-radius: 8px; }
+    .cr-timeline { display: grid; gap: 0; }
+    .cr-timeline-item { position: relative; display: grid; grid-template-columns: 18px minmax(0, 1fr); grid-template-rows: auto auto; padding-bottom: 14px; }
+    .cr-timeline-item:not(:last-child)::after { content: ""; position: absolute; top: 12px; bottom: 0; left: 5px; width: 1px; background: #cfdcda; }
+    .cr-timeline-dot { z-index: 1; grid-row: 1 / 3; width: 11px; height: 11px; margin-top: 2px; background: var(--brand-2); border: 3px solid #dcebe6; border-radius: 50%; }
+    .cr-timeline-item strong { color: #42535a; font-size: 11px; }
+    .cr-timeline-item span:last-child { margin-top: 3px; color: #8b969c; font-size: 9px; line-height: 1.55; }
+
+    .cr-modal-layer { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(16, 36, 32, .45); }
+    .cr-modal { width: min(560px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; padding: 23px; background: #fff; border-radius: 16px; box-shadow: 0 30px 80px rgba(17, 45, 39, .25); }
+    .cr-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .cr-modal-head h2 { margin: 0; font-size: 19px; }
+    .cr-modal-close { display: grid; width: 34px; height: 34px; place-items: center; color: #607078; background: #f0f3f3; border: 0; border-radius: 50%; }
+    .cr-checklist { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .cr-checklist li { display: flex; gap: 8px; color: #526169; font-size: 12px; line-height: 1.55; }
+    .cr-checklist li::before { content: "✓"; color: var(--success); font-weight: 700; }
+    .cr-toast { position: fixed; z-index: 80; right: 22px; bottom: 22px; max-width: min(390px, calc(100vw - 44px)); padding: 12px 15px; color: #fff; background: #173f38; border-radius: 10px; box-shadow: var(--shadow); font-size: 12px; animation: cr-in .18s ease; }
+    @keyframes cr-in { from { transform: translateY(8px); opacity: 0; } }
+
+    @media (max-width: 1060px) {
+      .cr-metrics { grid-template-columns: repeat(2, 1fr); }
+      .cr-grid-two, .cr-detail-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 780px) {
+      .cr-login { grid-template-columns: 1fr; }
+      .cr-login-visual { min-height: 360px; padding: 48px 30px; }
+      .cr-shell { grid-template-columns: 1fr; }
+      .cr-topbar { height: auto; min-height: 68px; flex-wrap: wrap; padding: 12px 14px; }
+      .cr-role-switch { order: 3; width: 100%; }
+      .cr-role-switch button { flex: 1; }
+      .cr-brand, .cr-top-actions { min-width: 0; }
+      .cr-user-badge > div { display: none; }
+      .cr-sidebar { position: static; height: auto; padding: 10px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .cr-sidebar nav { display: flex; min-width: max-content; }
+      .cr-nav-btn { width: auto; }
+      .cr-sidebar-note { display: none; }
+      .cr-content { padding-top: 18px; }
+      .cr-page-head { flex-direction: column; }
+      .cr-page-actions { width: 100%; justify-content: stretch; }
+      .cr-page-actions .cr-btn { flex: 1; }
+      .cr-flow { overflow-x: auto; grid-template-columns: repeat(4, minmax(145px, 1fr)); }
+    }
+    @media (max-width: 540px) {
+      .cr-login-form-wrap { padding: 18px; }
+      .cr-login-card { padding: 24px; }
+      .cr-demo-accounts { grid-template-columns: 1fr; }
+      .cr-metrics, .cr-form-grid, .cr-kv { grid-template-columns: 1fr; }
+      .cr-full { grid-column: auto; }
+      .cr-toolbar input, .cr-toolbar select, .cr-toolbar .cr-btn { width: 100%; }
+      .cr-comment-form, .cr-upload, .cr-assign-row { grid-template-columns: 1fr; flex-direction: column; }
+      .cr-form-actions { flex-direction: column-reverse; }
+      .cr-form-actions .cr-btn { width: 100%; }
+      .cr-top-actions .cr-btn[data-action="show-guide"] { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="campus-repair-app"></div>
+  <script>
+    (() => {
+      const root = document.getElementById('campus-repair-app');
+      const accounts = {
+        student: { password: 'student123', name: '学生用户', role: 'student', label: '学生端' },
+        tech: { password: 'tech123', name: '维修人员', role: 'tech', label: '维修端' },
+        admin: { password: 'admin123', name: '系统管理员', role: 'admin', label: '管理端' }
+      };
+      const statusLabels = { PENDING: '待接单', PROCESSING: '处理中', RESOLVED: '待确认', CLOSED: '已关闭', CANCELLED: '已取消' };
+      const priorityLabels = { HIGH: '紧急', MEDIUM: '普通', LOW: '较低' };
+      const initialTickets = [
+        { id: 'ticket-1', ticketNo: 'REP-0001', title: '实训室投影仪无法显示', description: '电脑已连接 HDMI，投影仪仍提示无信号，请协助检查线路和信号源。', category: '教学设备', location: '实训楼 A-302', priority: 'HIGH', status: 'PENDING', reporterId: 'student', reporterName: '学生用户', assigneeId: '', assigneeName: '', createdAt: '今天 09:20', updatedAt: '今天 09:20', attachment: { name: '投影仪无信号.jpg', preview: '' }, comments: [], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 今天 09:20', from: '', to: 'PENDING' }] },
+        { id: 'ticket-2', ticketNo: 'REP-0002', title: '宿舍楼三层无线网络不稳定', description: '晚间频繁掉线，多个房间均有相同情况，希望检查楼层 AP 信号。', category: '网络故障', location: '3 号宿舍楼 3F', priority: 'MEDIUM', status: 'PROCESSING', reporterId: 'student', reporterName: '学生用户', assigneeId: 'tech', assigneeName: '维修人员', createdAt: '昨天 16:45', updatedAt: '今天 08:35', attachment: null, comments: [{ author: '维修人员', time: '今天 08:35', content: '已联系网络中心，上午到现场检测 AP 信号。' }], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 昨天 16:45', from: '', to: 'PENDING' }, { action: 'ACCEPT', title: '维修人员接单', detail: '维修人员 · 今天 08:30', from: 'PENDING', to: 'PROCESSING' }, { action: 'COMMENT', title: '新增处理留言', detail: '维修人员 · 今天 08:35', from: 'PROCESSING', to: 'PROCESSING' }] },
+        { id: 'ticket-3', ticketNo: 'REP-0003', title: '图书馆二楼饮水机漏水', description: '饮水机底部持续有少量积水，现场已放置警示牌，请尽快处理。', category: '水电设施', location: '图书馆 2F 东侧', priority: 'HIGH', status: 'RESOLVED', reporterId: 'student', reporterName: '学生用户', assigneeId: 'tech', assigneeName: '维修人员', createdAt: '08-21 11:10', updatedAt: '昨天 14:20', attachment: { name: '漏水位置.jpg', preview: '' }, comments: [{ author: '维修人员', time: '昨天 14:20', content: '已更换进水阀并清理积水，请确认设备是否恢复正常。' }], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 08-21 11:10', from: '', to: 'PENDING' }, { action: 'ACCEPT', title: '维修人员接单', detail: '维修人员 · 08-21 11:32', from: 'PENDING', to: 'PROCESSING' }, { action: 'RESOLVE', title: '维修完成，等待确认', detail: '维修人员 · 昨天 14:20', from: 'PROCESSING', to: 'RESOLVED' }] },
+        { id: 'ticket-4', ticketNo: 'REP-0004', title: '教学楼一楼照明灯闪烁', description: '走廊东侧第二盏灯频繁闪烁，影响晚间通行。', category: '水电设施', location: '教学楼 B-1F', priority: 'LOW', status: 'CLOSED', reporterId: 'student', reporterName: '学生用户', assigneeId: 'tech', assigneeName: '维修人员', createdAt: '08-18 18:10', updatedAt: '08-19 10:42', attachment: null, comments: [], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 08-18 18:10', from: '', to: 'PENDING' }, { action: 'ACCEPT', title: '维修人员接单', detail: '维修人员 · 08-19 08:10', from: 'PENDING', to: 'PROCESSING' }, { action: 'RESOLVE', title: '维修完成，等待确认', detail: '维修人员 · 08-19 10:22', from: 'PROCESSING', to: 'RESOLVED' }, { action: 'CLOSE', title: '学生确认并关闭', detail: '学生用户 · 08-19 10:42', from: 'RESOLVED', to: 'CLOSED' }] },
+        { id: 'ticket-5', ticketNo: 'REP-0005', title: '机房 12 号电脑无法启动', description: '按下电源键后没有反应，已检查插座正常。', category: '电脑设备', location: '实训楼 C-401', priority: 'MEDIUM', status: 'PENDING', reporterId: 'student', reporterName: '学生用户', assigneeId: '', assigneeName: '', createdAt: '08-17 14:05', updatedAt: '08-17 14:05', attachment: null, comments: [], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 08-17 14:05', from: '', to: 'PENDING' }] },
+        { id: 'ticket-6', ticketNo: 'REP-0006', title: '多媒体讲台 USB 接口松动', description: 'U 盘插入后经常断开连接，建议检查接口。', category: '教学设备', location: '教学楼 A-105', priority: 'LOW', status: 'CANCELLED', reporterId: 'student', reporterName: '学生用户', assigneeId: '', assigneeName: '', createdAt: '08-16 09:30', updatedAt: '08-16 10:00', attachment: null, comments: [], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 08-16 09:30', from: '', to: 'PENDING' }, { action: 'CANCEL', title: '学生取消工单', detail: '学生用户 · 08-16 10:00', from: 'PENDING', to: 'CANCELLED' }] },
+        { id: 'ticket-7', ticketNo: 'REP-0007', title: '宿舍洗手间水龙头无法关闭', description: '水龙头阀门损坏，一直有细水流出。', category: '水电设施', location: '2 号宿舍楼 4F', priority: 'HIGH', status: 'PROCESSING', reporterId: 'student', reporterName: '学生用户', assigneeId: 'tech', assigneeName: '维修人员', createdAt: '08-15 20:13', updatedAt: '08-16 08:20', attachment: null, comments: [], logs: [{ action: 'CREATE', title: '提交报修申请', detail: '学生用户 · 08-15 20:13', from: '', to: 'PENDING' }, { action: 'ASSIGN', title: '管理员指派维修人员', detail: '系统管理员 → 维修人员 · 08-16 08:20', from: 'PENDING', to: 'PROCESSING' }] }
+      ];
+
+      const cloneTickets = () => JSON.parse(JSON.stringify(initialTickets));
+      const state = {
+        loggedIn: false,
+        loginError: '',
+        role: 'student',
+        username: 'student',
+        view: 'dashboard',
+        selectedId: 'ticket-1',
+        tickets: cloneTickets(),
+        keyword: '',
+        status: 'ALL',
+        category: 'ALL',
+        page: 1,
+        pageSize: 4,
+        toast: '',
+        guide: false,
+        formError: '',
+        draftAttachment: null
+      };
+
+      const escapeHtml = (value) => String(value ?? '')
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+      const currentAccount = () => accounts[state.username] || accounts.student;
+      const visibleTickets = () => state.role === 'student' ? state.tickets.filter(ticket => ticket.reporterId === 'student') : state.tickets;
+      const ticketById = (id) => state.tickets.find(ticket => ticket.id === id);
+      const nowLabel = () => '刚刚';
+      const statusClass = (status) => status.toLowerCase();
+      const priorityClass = (priority) => priority.toLowerCase();
+      const statusBadge = (status) => `<span class="cr-status ${statusClass(status)}">${statusLabels[status]}</span>`;
+      const priorityText = (priority) => `<span class="cr-priority ${priorityClass(priority)}">${priorityLabels[priority]}</span>`;
+      const roleName = () => ({ student: '学生用户', tech: '维修人员', admin: '系统管理员' })[state.role];
+      const roleLabel = () => ({ student: '学生端', tech: '维修端', admin: '管理端' })[state.role];
+
+      function showToast(message) {
+        state.toast = message;
+        render();
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => { state.toast = ''; render(); }, 2600);
+      }
+
+      function renderLogin() {
+        root.innerHTML = `<main class="cr-login">
+          <section class="cr-login-visual">
+            <span class="cr-login-mark">修</span>
+            <h1>校园报修协作系统</h1>
+            <p>从学生发现故障，到维修人员接单处理，再到学生验收关闭，用一个项目练习完整的前后端业务闭环。</p>
+            <div class="cr-flow-preview"><span>学生提交</span><span>维修接单</span><span>完成维修</span><span>学生验收</span></div>
+          </section>
+          <section class="cr-login-form-wrap">
+            <form id="login-form" class="cr-login-card">
+              <div class="cr-kicker">MINI REPAIR SYSTEM</div>
+              <h2>登录项目原型</h2>
+              <p>使用演示账号进入对应角色页面。</p>
+              ${state.loginError ? `<div class="cr-error" role="alert">${escapeHtml(state.loginError)}</div>` : ''}
+              <div class="cr-field"><label for="login-username">用户名</label><input id="login-username" name="username" autocomplete="username" value="${escapeHtml(state.username)}"></div>
+              <div class="cr-field"><label for="login-password">密码</label><input id="login-password" name="password" type="password" autocomplete="current-password" value="${accounts[state.username]?.password || ''}"></div>
+              <button class="cr-btn cr-btn-primary cr-btn-block" type="submit">登录系统</button>
+              <div class="cr-demo-accounts">
+                <button type="button" data-action="quick-login" data-user="student">学生账号</button>
+                <button type="button" data-action="quick-login" data-user="tech">维修账号</button>
+                <button type="button" data-action="quick-login" data-user="admin">管理员账号</button>
+              </div>
+            </form>
+          </section>
+        </main>`;
+      }
+
+      function navItems() {
+        if (state.role === 'student') return [['dashboard','⌂','报修首页'], ['tickets','▤','我的工单'], ['new','＋','提交报修']];
+        if (state.role === 'tech') return [['dashboard','⌂','维修工作台'], ['tickets','▤','工单池'], ['mine','⚒','我的处理中']];
+        return [['dashboard','▦','数据看板'], ['tickets','▤','全部工单']];
+      }
+
+      function renderApp() {
+        const nav = navItems().map(([view, icon, label]) => `<button class="cr-nav-btn" type="button" data-action="navigate" data-view="${view}" aria-current="${state.view === view ? 'page' : 'false'}"><span class="cr-nav-icon">${icon}</span>${label}</button>`).join('');
+        root.innerHTML = `<div class="cr-app">
+          <header class="cr-topbar">
+            <div class="cr-brand"><span class="cr-brand-mark">修</span><div><strong>校园报修</strong><small>MINI REPAIR SYSTEM</small></div></div>
+            <div class="cr-role-switch" aria-label="原型演示角色切换">
+              ${['student','tech','admin'].map(role => `<button type="button" data-action="switch-role" data-role="${role}" aria-pressed="${state.role === role}">${accounts[role].label}</button>`).join('')}
+            </div>
+            <div class="cr-top-actions">
+              <button class="cr-btn cr-btn-ghost" type="button" data-action="show-guide">原型说明</button>
+              <div class="cr-user-badge"><span class="cr-avatar">${roleName().slice(0,1)}</span><div><strong>${roleName()}</strong><small>${roleLabel()}</small></div></div>
+              <button class="cr-btn cr-btn-ghost" type="button" data-action="logout">退出</button>
+            </div>
+          </header>
+          <div class="cr-shell">
+            <aside class="cr-sidebar"><nav>${nav}</nav><div class="cr-sidebar-note"><strong>六人协作目标版</strong>原型包含分页统计、附件预览、工单指派、权限状态流转和操作日志。</div></aside>
+            <main class="cr-content">${renderView()}</main>
+          </div>
+          ${state.guide ? renderGuide() : ''}
+          ${state.toast ? `<div class="cr-toast" role="status" aria-live="polite">${escapeHtml(state.toast)}</div>` : ''}
+        </div>`;
+      }
+
+      function flowMarkup(ticket) {
+        const stageMap = { PENDING: 1, PROCESSING: 2, RESOLVED: 3, CLOSED: 4, CANCELLED: 1 };
+        const current = stageMap[ticket.status] || 1;
+        const stages = [['学生报修','提交工单'],['维修接单','认领或指派'],['完成维修','提交处理结果'],['学生确认','关闭工单']];
+        return `<section class="cr-flow" aria-label="工单状态流程">${stages.map((item,index) => {
+          const step = index + 1;
+          const cls = ticket.status === 'CANCELLED' ? '' : step < current ? 'is-done' : step === current ? 'is-current' : '';
+          return `<div class="cr-flow-step ${cls}"><span class="cr-flow-dot">${step < current ? '✓' : step}</span><strong>${item[0]}</strong><small>${item[1]}</small></div>`;
+        }).join('')}</section>`;
+      }
+
+      function metric(label, value, hint) {
+        return `<article class="cr-metric"><span>${label}</span><strong>${value}</strong><small>${hint}</small></article>`;
+      }
+
+      function renderDashboard() {
+        const tickets = visibleTickets();
+        const pending = tickets.filter(item => item.status === 'PENDING');
+        const processing = tickets.filter(item => item.status === 'PROCESSING');
+        const resolved = tickets.filter(item => item.status === 'RESOLVED');
+        const closed = tickets.filter(item => item.status === 'CLOSED');
+        if (state.role === 'student') {
+          return `<header class="cr-page-head"><div><span class="cr-phase-label">学生端</span><h1>上午好，学生用户</h1><p>提交故障并随时跟踪维修进度。</p></div><div class="cr-page-actions"><button class="cr-btn cr-btn-primary" data-action="navigate" data-view="new">＋ 提交报修</button></div></header>
+          ${flowMarkup(tickets.find(item => ['PENDING','PROCESSING','RESOLVED'].includes(item.status)) || tickets[0])}
+          <section class="cr-metrics">${metric('全部工单', tickets.length, '仅显示本人提交')}${metric('待接单', pending.length, '等待维修人员处理')}${metric('处理中', processing.length, '维修人员正在处理')}${metric('待确认', resolved.length, '请验收维修结果')}</section>
+          <div class="cr-grid-two"><section class="cr-panel"><div class="cr-panel-head"><h2>最近工单</h2><button class="cr-btn cr-btn-ghost" data-action="navigate" data-view="tickets">查看全部</button></div>${ticketTable(tickets.slice(0,4), false)}</section>
+          <section class="cr-panel"><h2>快捷操作</h2><div class="cr-quick-list" style="margin-top:14px"><button class="cr-quick-item" data-action="navigate" data-view="new"><span class="cr-quick-icon">＋</span><span><strong>提交新报修</strong><small>填写位置、分类和现场照片</small></span></button><button class="cr-quick-item" data-action="open-first-resolved"><span class="cr-quick-icon">✓</span><span><strong>验收维修结果</strong><small>${resolved.length} 个工单等待确认</small></span></button></div></section></div>`;
+        }
+        if (state.role === 'tech') {
+          const mine = processing.filter(item => item.assigneeId === 'tech');
+          return `<header class="cr-page-head"><div><span class="cr-phase-label">维修端</span><h1>维修工作台</h1><p>先处理紧急工单，只能完成分配给自己的任务。</p></div><div class="cr-page-actions"><button class="cr-btn" data-action="navigate" data-view="tickets">打开工单池</button></div></header>
+          ${flowMarkup(pending[0] || mine[0] || tickets[0])}
+          <section class="cr-metrics">${metric('待接工单', pending.length, `${pending.filter(item => item.priority === 'HIGH').length} 个紧急工单`)}${metric('我的处理中', mine.length, '只统计分配给本人')}${metric('待学生确认', resolved.length, '维修结果已提交')}${metric('本期已关闭', closed.length, '已完成业务闭环')}</section>
+          <div class="cr-grid-two"><section class="cr-panel"><div class="cr-panel-head"><h2>优先处理</h2><span>按紧急程度排序</span></div>${ticketTable([...pending].sort((a,b) => a.priority === 'HIGH' ? -1 : 1), true)}</section>
+          <section class="cr-panel"><h2>今日任务</h2><div class="cr-quick-list" style="margin-top:14px">${mine.length ? mine.map(ticket => `<button class="cr-quick-item" data-action="open-ticket" data-id="${ticket.id}"><span class="cr-quick-icon">⚒</span><span><strong>${escapeHtml(ticket.title)}</strong><small>${escapeHtml(ticket.location)}</small></span></button>`).join('') : '<div class="cr-empty">暂无处理中任务</div>'}</div></section></div>`;
+        }
+        const open = tickets.filter(item => !['CLOSED','CANCELLED'].includes(item.status));
+        const bars = [2,4,3,7,5,6,4];
+        return `<header class="cr-page-head"><div><span class="cr-phase-label">管理端</span><h1>报修运营看板</h1><p>查看全校工单、处理效率并指派维修人员。</p></div><div class="cr-page-actions"><button class="cr-btn cr-btn-primary" data-action="navigate" data-view="tickets">管理全部工单</button></div></header>
+        <section class="cr-metrics">${metric('当前工单', tickets.length, '全部报修记录')}${metric('未关闭工单', open.length, '需要继续跟踪')}${metric('紧急工单', tickets.filter(item => item.priority === 'HIGH' && !['CLOSED','CANCELLED'].includes(item.status)).length, '优先指派处理')}${metric('闭环率', `${Math.round(closed.length * 100 / tickets.length)}%`, '已关闭 / 全部工单')}</section>
+        <div class="cr-grid-two"><section class="cr-panel"><div class="cr-panel-head"><h2>近七日工单趋势</h2><span>单位：单</span></div><div class="cr-mini-bars">${bars.map((value,index) => `<div class="cr-mini-bar-group"><strong>${value}</strong><div class="cr-mini-bar" style="height:${value * 12}%"></div><span>${['一','二','三','四','五','六','日'][index]}</span></div>`).join('')}</div></section>
+        <section class="cr-panel"><div class="cr-panel-head"><h2>待指派工单</h2><span>${pending.length} 单</span></div><div class="cr-quick-list">${pending.map(ticket => `<button class="cr-quick-item" data-action="open-ticket" data-id="${ticket.id}"><span class="cr-quick-icon">!</span><span><strong>${escapeHtml(ticket.title)}</strong><small>${priorityLabels[ticket.priority]} · ${escapeHtml(ticket.location)}</small></span></button>`).join('')}</div></section></div>`;
+      }
+
+      function filteredTickets() {
+        let list = visibleTickets();
+        if (state.view === 'mine') list = list.filter(item => item.status === 'PROCESSING' && item.assigneeId === 'tech');
+        if (state.status !== 'ALL') list = list.filter(item => item.status === state.status);
+        if (state.category !== 'ALL') list = list.filter(item => item.category === state.category);
+        const keyword = state.keyword.trim().toLowerCase();
+        if (keyword) list = list.filter(item => [item.ticketNo,item.title,item.location,item.description].some(value => value.toLowerCase().includes(keyword)));
+        return list;
+      }
+
+      function ticketTable(tickets, showAction) {
+        if (!tickets.length) return '<div class="cr-empty">当前没有符合条件的工单</div>';
+        return `<div class="cr-table-wrap"><table class="cr-table"><thead><tr><th>工单</th><th>位置</th><th>优先级</th><th>状态</th><th>负责人</th>${showAction ? '<th>操作</th>' : ''}</tr></thead><tbody>${tickets.map(ticket => `<tr data-action="open-ticket" data-id="${ticket.id}"><td><strong class="cr-ticket-title">${escapeHtml(ticket.title)}</strong><span class="cr-secondary-text">${ticket.ticketNo} · ${escapeHtml(ticket.category)}</span></td><td>${escapeHtml(ticket.location)}</td><td>${priorityText(ticket.priority)}</td><td>${statusBadge(ticket.status)}</td><td>${escapeHtml(ticket.assigneeName || '未指派')}</td>${showAction ? `<td>${state.role === 'tech' && ticket.status === 'PENDING' ? `<button class="cr-btn" data-action="accept" data-id="${ticket.id}">接单</button>` : '<span class="cr-secondary-text">查看详情</span>'}</td>` : ''}</tr>`).join('')}</tbody></table></div>`;
+      }
+
+      function renderTickets() {
+        const list = filteredTickets();
+        const totalPages = Math.max(1, Math.ceil(list.length / state.pageSize));
+        if (state.page > totalPages) state.page = totalPages;
+        const start = (state.page - 1) * state.pageSize;
+        const pageItems = list.slice(start, start + state.pageSize);
+        const heading = state.role === 'student' ? '我的工单' : state.view === 'mine' ? '我的处理中' : state.role === 'tech' ? '工单池' : '全部工单';
+        return `<header class="cr-page-head"><div><span class="cr-phase-label">分页、筛选与权限</span><h1>${heading}</h1><p>学生仅查看本人数据；维修与管理员按权限处理工单。</p></div>${state.role === 'student' ? '<div class="cr-page-actions"><button class="cr-btn cr-btn-primary" data-action="navigate" data-view="new">＋ 提交报修</button></div>' : ''}</header>
+        <section class="cr-panel"><div class="cr-toolbar"><input id="ticket-keyword" value="${escapeHtml(state.keyword)}" placeholder="搜索编号、标题、地点"><select id="ticket-status"><option value="ALL">全部状态</option>${Object.entries(statusLabels).map(([value,label]) => `<option value="${value}" ${state.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select><select id="ticket-category"><option value="ALL">全部分类</option>${['教学设备','电脑设备','网络故障','水电设施'].map(value => `<option ${state.category === value ? 'selected' : ''}>${value}</option>`).join('')}</select><button class="cr-btn" data-action="search">查询</button><button class="cr-btn cr-btn-ghost" data-action="clear-filter">清空筛选</button></div>
+        ${ticketTable(pageItems, state.role === 'tech')}
+        <div class="cr-pagination"><span>共 ${list.length} 条 · 第 ${state.page}/${totalPages} 页</span><button data-action="page" data-page="${state.page - 1}" ${state.page <= 1 ? 'disabled' : ''}>‹</button><button data-action="page" data-page="${state.page + 1}" ${state.page >= totalPages ? 'disabled' : ''}>›</button></div></section>`;
+      }
+
+      function renderNewTicket() {
+        if (state.role !== 'student') return renderDashboard();
+        return `<header class="cr-page-head"><div><span class="cr-phase-label">学生端表单</span><h1>提交报修</h1><p>信息越完整，维修人员越容易提前准备工具与配件。</p></div><div class="cr-page-actions"><button class="cr-btn" data-action="navigate" data-view="dashboard">返回首页</button></div></header>
+        <section class="cr-panel"><form id="ticket-form" novalidate>${state.formError ? `<div class="cr-error" role="alert">${escapeHtml(state.formError)}</div>` : ''}<div class="cr-form-grid">
+          <div class="cr-field cr-full"><label for="new-title">故障标题 *</label><input id="new-title" name="title" placeholder="例如：实训室投影仪无法显示"><span class="cr-help">3—80 个字符</span></div>
+          <div class="cr-field"><label for="new-category">故障分类 *</label><select id="new-category" name="category"><option>教学设备</option><option>电脑设备</option><option>网络故障</option><option>水电设施</option></select></div>
+          <div class="cr-field"><label for="new-location">故障位置 *</label><input id="new-location" name="location" placeholder="楼栋、楼层和房间号"><span class="cr-help">至少 2 个字符</span></div>
+          <fieldset class="cr-field cr-full" style="border:0;padding:0"><legend>优先级 *</legend><div class="cr-radio-row"><label class="cr-radio"><input type="radio" name="priority" value="LOW">较低</label><label class="cr-radio"><input type="radio" name="priority" value="MEDIUM" checked>普通</label><label class="cr-radio"><input type="radio" name="priority" value="HIGH">紧急</label></div></fieldset>
+          <div class="cr-field cr-full"><label for="new-description">故障描述 *</label><textarea id="new-description" name="description" placeholder="请描述故障表现、发生时间以及已经尝试过的处理方法"></textarea><span class="cr-help">5—1000 个字符</span></div>
+          <div class="cr-field cr-full"><label for="new-photo">现场照片</label><div class="cr-upload"><input id="new-photo" name="photo" type="file" accept="image/jpeg,image/png" data-action="photo"><div id="photo-state">${state.draftAttachment ? photoPreviewMarkup(state.draftAttachment) : '<span class="cr-help">支持 JPG、PNG，建议不超过 5 MB</span>'}</div></div></div>
+        </div><div class="cr-form-actions"><button class="cr-btn" type="reset" data-action="reset-form">清空</button><button class="cr-btn cr-btn-primary" type="submit">提交工单</button></div></form></section>`;
+      }
+
+      function photoPreviewMarkup(attachment) {
+        return `<div class="cr-photo-preview">${attachment.preview ? `<img src="${attachment.preview}" alt="现场照片预览">` : '<span class="cr-quick-icon">图</span>'}<span><strong style="display:block;font-size:11px">${escapeHtml(attachment.name)}</strong><small class="cr-help">已选择，可重新选择</small></span></div>`;
+      }
+
+      function addLog(ticket, action, title, from, to, detail) {
+        ticket.logs.push({ action, title, detail: `${detail} · ${nowLabel()}`, from, to });
+        ticket.updatedAt = nowLabel();
+      }
+
+      function renderDetail() {
+        const ticket = ticketById(state.selectedId);
+        if (!ticket) { state.view = 'tickets'; return renderTickets(); }
+        const canAccept = state.role === 'tech' && ticket.status === 'PENDING';
+        const canResolve = state.role === 'tech' && ticket.status === 'PROCESSING' && ticket.assigneeId === 'tech';
+        const canCancel = state.role === 'student' && ticket.status === 'PENDING' && ticket.reporterId === 'student';
+        const canClose = state.role === 'student' && ticket.status === 'RESOLVED' && ticket.reporterId === 'student';
+        const adminPending = state.role === 'admin' && ticket.status === 'PENDING';
+        const adminResolve = state.role === 'admin' && ticket.status === 'PROCESSING';
+        const adminClose = state.role === 'admin' && ticket.status === 'RESOLVED';
+        return `<header class="cr-page-head"><div><button class="cr-btn cr-btn-ghost" data-action="navigate" data-view="tickets">← 返回列表</button><h1 style="margin-top:9px">${escapeHtml(ticket.title)}</h1><p>${ticket.ticketNo} · 创建于 ${ticket.createdAt}</p></div><div>${statusBadge(ticket.status)}</div></header>
+        ${flowMarkup(ticket)}
+        <div class="cr-detail-grid"><section class="cr-panel">
+          <div class="cr-detail-section"><h2>故障信息</h2><div class="cr-kv"><div><span>故障分类</span><strong>${escapeHtml(ticket.category)}</strong></div><div><span>故障位置</span><strong>${escapeHtml(ticket.location)}</strong></div><div><span>优先级</span><strong>${priorityLabels[ticket.priority]}</strong></div><div><span>报修人</span><strong>${escapeHtml(ticket.reporterName)}</strong></div></div></div>
+          <div class="cr-detail-section"><h2>故障描述</h2><p class="cr-description">${escapeHtml(ticket.description)}</p>${ticket.attachment ? `<div class="cr-attachment">${ticket.attachment.preview ? `<img src="${ticket.attachment.preview}" alt="附件预览">` : '<span class="cr-quick-icon">图</span>'}<span>附件：${escapeHtml(ticket.attachment.name)}</span></div>` : ''}</div>
+          <div class="cr-detail-section"><h2>沟通记录</h2>${ticket.comments.length ? ticket.comments.map(comment => `<article class="cr-comment"><strong>${escapeHtml(comment.author)}</strong><time>${escapeHtml(comment.time)}</time><p>${escapeHtml(comment.content)}</p></article>`).join('') : '<p class="cr-secondary-text">暂无留言</p>'}<form id="comment-form" class="cr-comment-form"><input name="comment" maxlength="500" placeholder="补充说明或询问处理进度" aria-label="留言内容"><button class="cr-btn" type="submit">发送留言</button></form></div>
+        </section><aside>
+          <section class="cr-panel"><h2>处理负责人</h2><div class="cr-assignee"><span class="cr-avatar">${ticket.assigneeName ? ticket.assigneeName.slice(0,1) : '?'}</span><div><strong>${escapeHtml(ticket.assigneeName || '暂未指派')}</strong><span>${ticket.assigneeName ? '校园维修中心' : '等待接单或管理员指派'}</span></div></div><div class="cr-stack-actions">
+            ${canAccept ? `<button class="cr-btn cr-btn-primary" data-action="accept" data-id="${ticket.id}">认领此工单</button>` : ''}
+            ${canResolve ? `<button class="cr-btn cr-btn-primary" data-action="resolve" data-id="${ticket.id}">标记维修完成</button>` : ''}
+            ${canCancel ? `<button class="cr-btn cr-btn-danger" data-action="cancel" data-id="${ticket.id}">取消工单</button>` : ''}
+            ${canClose ? `<button class="cr-btn cr-btn-primary" data-action="close-ticket" data-id="${ticket.id}">确认完成并关闭</button>` : ''}
+            ${adminPending ? `<div class="cr-assign-row"><select id="assignee-select" aria-label="选择维修人员"><option value="tech">维修人员</option></select><button class="cr-btn cr-btn-primary" data-action="assign" data-id="${ticket.id}">指派</button></div><button class="cr-btn cr-btn-danger" data-action="cancel" data-id="${ticket.id}">管理员取消</button>` : ''}
+            ${adminResolve ? `<button class="cr-btn cr-btn-primary" data-action="resolve" data-id="${ticket.id}">管理员标记解决</button>` : ''}
+            ${adminClose ? `<button class="cr-btn cr-btn-primary" data-action="close-ticket" data-id="${ticket.id}">管理员关闭工单</button>` : ''}
+            ${!canAccept && !canResolve && !canCancel && !canClose && !adminPending && !adminResolve && !adminClose ? `<button class="cr-btn" disabled>${['CLOSED','CANCELLED'].includes(ticket.status) ? '流程已结束' : '等待下一环节'}</button>` : ''}
+          </div></section>
+          <section class="cr-panel" style="margin-top:14px"><div class="cr-panel-head"><h2>操作日志</h2><span>只读审计记录</span></div><div class="cr-timeline">${ticket.logs.map(log => `<div class="cr-timeline-item"><span class="cr-timeline-dot"></span><strong>${escapeHtml(log.title)}</strong><span>${escapeHtml(log.detail)}${log.from && log.to && log.from !== log.to ? ` · ${statusLabels[log.from]} → ${statusLabels[log.to]}` : ''}</span></div>`).join('')}</div></section>
+        </aside></div>`;
+      }
+
+      function renderGuide() {
+        return `<div class="cr-modal-layer"><section class="cr-modal" role="dialog" aria-modal="true" aria-labelledby="guide-title"><div class="cr-modal-head"><h2 id="guide-title">学生项目原型说明</h2><button class="cr-modal-close" data-action="close-guide" aria-label="关闭">×</button></div><p class="cr-description" style="margin-bottom:16px">这是六人协作练习的最终目标版原型。顶部角色切换仅用于课堂演示，真实项目使用 JWT 登录和后端权限校验。</p><ul class="cr-checklist"><li>学生：创建、查询本人工单、上传图片、留言、取消待处理工单、验收关闭。</li><li>维修人员：查看工单池、接单、处理本人任务、留言并标记完成。</li><li>管理员：查看统计与全部工单、指派维修人员、处理异常状态。</li><li>公共能力：搜索、状态/分类筛选、分页、401 自动退出、加载与错误反馈。</li><li>后端要求：FastAPI、AsyncSession、SQLAlchemy Async、aiomysql、MySQL。</li><li>协作要求：接口先行、独立分支、Pull Request、自动测试与前后端联调。</li></ul><div class="cr-form-actions" style="margin-top:20px"><button class="cr-btn" data-action="reset-data">重置演示数据</button><button class="cr-btn cr-btn-primary" data-action="close-guide">开始查看原型</button></div></section></div>`;
+      }
+
+      function renderView() {
+        if (state.view === 'detail') return renderDetail();
+        if (state.view === 'new') return renderNewTicket();
+        if (state.view === 'tickets' || state.view === 'mine') return renderTickets();
+        return renderDashboard();
+      }
+
+      function render() {
+        if (!state.loggedIn) renderLogin(); else renderApp();
+      }
+
+      root.addEventListener('submit', event => {
+        event.preventDefault();
+        if (event.target.id === 'login-form') {
+          const data = new FormData(event.target);
+          const username = String(data.get('username') || '').trim();
+          const password = String(data.get('password') || '');
+          const account = accounts[username];
+          if (!account || account.password !== password) {
+            state.loginError = '用户名或密码错误，请使用下方演示账号。';
+            render();
+            return;
+          }
+          state.username = username;
+          state.role = account.role;
+          state.loggedIn = true;
+          state.view = 'dashboard';
+          state.loginError = '';
+          showToast(`欢迎回来，${account.name}`);
+          return;
+        }
+        if (event.target.id === 'ticket-form') {
+          const data = new FormData(event.target);
+          const title = String(data.get('title') || '').trim();
+          const description = String(data.get('description') || '').trim();
+          const location = String(data.get('location') || '').trim();
+          if (title.length < 3 || description.length < 5 || location.length < 2) {
+            state.formError = '请完整填写标题、地点和故障描述，并满足最小长度要求。';
+            render();
+            return;
+          }
+          const maxNo = Math.max(...state.tickets.map(ticket => Number(ticket.ticketNo.split('-')[1])));
+          const ticket = {
+            id: `ticket-${Date.now()}`,
+            ticketNo: `REP-${String(maxNo + 1).padStart(4,'0')}`,
+            title,
+            description,
+            category: String(data.get('category')),
+            location,
+            priority: String(data.get('priority') || 'MEDIUM'),
+            status: 'PENDING', reporterId: 'student', reporterName: '学生用户', assigneeId: '', assigneeName: '',
+            createdAt: nowLabel(), updatedAt: nowLabel(), attachment: state.draftAttachment,
+            comments: [], logs: [{ action: 'CREATE', title: '提交报修申请', detail: `学生用户 · ${nowLabel()}`, from: '', to: 'PENDING' }]
+          };
+          state.tickets.unshift(ticket);
+          state.selectedId = ticket.id;
+          state.view = 'detail';
+          state.formError = '';
+          state.draftAttachment = null;
+          showToast(`工单 ${ticket.ticketNo} 已提交，等待维修人员接单。`);
+          return;
+        }
+        if (event.target.id === 'comment-form') {
+          const ticket = ticketById(state.selectedId);
+          const content = String(new FormData(event.target).get('comment') || '').trim();
+          if (!ticket || !content) { showToast('请输入留言内容。'); return; }
+          ticket.comments.push({ author: roleName(), time: nowLabel(), content });
+          addLog(ticket, 'COMMENT', '新增处理留言', ticket.status, ticket.status, roleName());
+          showToast('留言已发送。');
+        }
+      });
+
+      root.addEventListener('change', event => {
+        if (event.target.dataset.action === 'photo') {
+          const file = event.target.files && event.target.files[0];
+          if (!file) { state.draftAttachment = null; render(); return; }
+          if (!['image/jpeg','image/png'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+            state.formError = '照片必须是 JPG 或 PNG，且不能超过 5 MB。';
+            state.draftAttachment = null;
+            render();
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => { state.draftAttachment = { name: file.name, preview: String(reader.result) }; render(); };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      root.addEventListener('click', event => {
+        const target = event.target.closest('[data-action]');
+        if (!target) return;
+        const action = target.dataset.action;
+        const ticket = target.dataset.id ? ticketById(target.dataset.id) : null;
+        if (action === 'quick-login') {
+          state.username = target.dataset.user;
+          state.role = accounts[state.username].role;
+          state.loggedIn = true;
+          state.view = 'dashboard';
+          state.loginError = '';
+          showToast(`已使用${accounts[state.username].label}演示账号登录。`);
+        } else if (action === 'switch-role') {
+          state.role = target.dataset.role;
+          state.username = target.dataset.role;
+          state.view = 'dashboard'; state.page = 1; state.status = 'ALL'; state.category = 'ALL'; state.keyword = '';
+          showToast(`已切换到${accounts[state.role].label}，角色切换仅用于原型演示。`);
+        } else if (action === 'logout') {
+          state.loggedIn = false; state.username = 'student'; state.role = 'student'; state.loginError = ''; render();
+        } else if (action === 'navigate') {
+          state.view = target.dataset.view; state.page = 1; state.formError = ''; render();
+        } else if (action === 'open-ticket' && ticket) {
+          if (event.target.closest('button') && event.target.closest('button') !== target) return;
+          state.selectedId = ticket.id; state.view = 'detail'; render();
+        } else if (action === 'open-first-resolved') {
+          const first = visibleTickets().find(item => item.status === 'RESOLVED');
+          if (first) { state.selectedId = first.id; state.view = 'detail'; render(); } else showToast('当前没有待确认工单。');
+        } else if (action === 'search') {
+          state.keyword = document.getElementById('ticket-keyword').value;
+          state.status = document.getElementById('ticket-status').value;
+          state.category = document.getElementById('ticket-category').value;
+          state.page = 1; render();
+        } else if (action === 'clear-filter') {
+          state.keyword = ''; state.status = 'ALL'; state.category = 'ALL'; state.page = 1; render();
+        } else if (action === 'page') {
+          state.page = Number(target.dataset.page); render();
+        } else if (action === 'accept' && ticket) {
+          event.stopPropagation();
+          if (ticket.status !== 'PENDING') return;
+          const from = ticket.status; ticket.status = 'PROCESSING'; ticket.assigneeId = 'tech'; ticket.assigneeName = '维修人员';
+          addLog(ticket, 'ACCEPT', '维修人员接单', from, ticket.status, '维修人员');
+          state.selectedId = ticket.id; state.view = 'detail'; showToast(`已认领工单 ${ticket.ticketNo}。`);
+        } else if (action === 'assign' && ticket) {
+          const from = ticket.status; ticket.status = 'PROCESSING'; ticket.assigneeId = 'tech'; ticket.assigneeName = '维修人员';
+          addLog(ticket, 'ASSIGN', '管理员指派维修人员', from, ticket.status, '系统管理员 → 维修人员');
+          showToast(`工单 ${ticket.ticketNo} 已指派给维修人员。`);
+        } else if (action === 'resolve' && ticket) {
+          const from = ticket.status; ticket.status = 'RESOLVED';
+          ticket.comments.push({ author: roleName(), time: nowLabel(), content: '故障已处理完成，请确认设备是否恢复正常。' });
+          addLog(ticket, 'RESOLVE', '维修完成，等待确认', from, ticket.status, roleName());
+          showToast('维修结果已提交，等待学生确认。');
+        } else if (action === 'close-ticket' && ticket) {
+          const from = ticket.status; ticket.status = 'CLOSED';
+          addLog(ticket, 'CLOSE', state.role === 'student' ? '学生确认并关闭' : '管理员关闭工单', from, ticket.status, roleName());
+          showToast('工单已关闭，业务流程完成。');
+        } else if (action === 'cancel' && ticket) {
+          const from = ticket.status; ticket.status = 'CANCELLED';
+          addLog(ticket, 'CANCEL', state.role === 'admin' ? '管理员取消工单' : '学生取消工单', from, ticket.status, roleName());
+          showToast('工单已取消。');
+        } else if (action === 'reset-form') {
+          state.draftAttachment = null; state.formError = ''; setTimeout(render, 0);
+        } else if (action === 'show-guide') {
+          state.guide = true; render();
+        } else if (action === 'close-guide') {
+          state.guide = false; render();
+        } else if (action === 'reset-data') {
+          state.tickets = cloneTickets(); state.guide = false; state.view = 'dashboard'; state.page = 1;
+          showToast('原型演示数据已重置。');
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

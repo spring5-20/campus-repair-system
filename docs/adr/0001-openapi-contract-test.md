@@ -1,0 +1,3 @@
+# OpenAPI YAML is the API contract, enforced by a contract test
+
+The PRD makes `docs/openapi.yaml` the single source of truth for paths, fields, and status codes, but FastAPI generates its own schema from code, so the two can drift. We decided to hand-author `docs/openapi.yaml` first and add a pytest that asserts the generated schema matches the committed YAML, so changing any interface means editing the contract first. Rejected alternatives: treating FastAPI's generated `/openapi.json` as the truth (violates the PRD red line) or relying on review alone (drift risk under parallel branches).

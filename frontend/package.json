@@ -1,0 +1,46 @@
+{
+  "name": "campus-repair-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "校园报修协作系统的学生端、维修端与管理端前端",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.jsx",
+    "smoke": "vite build --config vite.smoke.config.js && node work/smoke-out/smoke.js",
+    "prepare": "husky",
+    "commitlint": "commitlint --from=HEAD~1 --to=HEAD",
+    "commitlint:check": "commitlint --edit"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@ant-design/pro-components": "^2.8.10",
+    "@tanstack/react-query": "^5.102.8",
+    "antd": "^5.29.3",
+    "axios": "^1.20.0",
+    "dayjs": "^1.11.13",
+    "ra-core": "^5.15.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.87.0",
+    "react-router": "^7.18.3",
+    "react-router-dom": "^7.18.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "@eslint/js": "^9.39.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^9.39.4",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "jsdom": "^30.0.1",
+    "vite": "^8.2.2"
+  }
+}
